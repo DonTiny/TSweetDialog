@@ -1,0 +1,3 @@
+include ':sweet'
+include ':app'
+rootProject.name = "TSweetDialog"
