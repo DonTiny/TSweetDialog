@@ -1,11 +1,6 @@
 package com.dontiny.t.commponents.sweet;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ListAdapter;
 
 import java.io.Serializable;
 

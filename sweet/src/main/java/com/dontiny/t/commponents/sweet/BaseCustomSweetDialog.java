@@ -1,13 +1,19 @@
 package com.dontiny.t.commponents.sweet;
 
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.dontiny.t.commponents.sweet.SweetDialog;
+import com.blankj.utilcode.util.ScreenUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 /**
@@ -27,6 +33,28 @@ public abstract class BaseCustomSweetDialog extends SweetDialog {
         }
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 隐藏标题栏, 不加弹窗上方会一个透明的标题栏占着空间
+        //getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // 必须设置这两个,才能设置宽度
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        getDialog().getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+        // 设置宽度
+        WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        if (widthRation <= 1 && widthRation >= 0) {
+            params.width = (int) (ScreenUtils.getScreenWidth() * widthRation);
+        }else {
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        }
+        //此封装弹窗的显示位置以及尺寸
+        //params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        getDialog().getWindow().setAttributes(params);
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
@@ -36,12 +64,13 @@ public abstract class BaseCustomSweetDialog extends SweetDialog {
     }
 
     @Override
-    protected void modifyAlertDialogBuilder(AlertDialog.Builder builder) {
-        super.modifyAlertDialogBuilder(builder);
+    protected boolean modifyAlertDialogBuilder(AlertDialog.Builder builder) {
         if (getLayoutResId() != 0) {
             //设置自定义View
             builder.setView(getLayoutResId());
+            return true;
         }
+        return super.modifyAlertDialogBuilder(builder);
     }
 
     @Override

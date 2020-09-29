@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -78,10 +79,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                //SweetDialog.createBuilder(this).builder().show(getSupportFragmentManager(), "tag");
                 break;
             case R.id.btn_tow_dialog:
+                SweetDialogManager.createBuilder(this, BottomDialog.class)
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setTitle("我就看看标题")
+                        .setMessage("我就看看消息")
+                        .setPositiveButton("右边按钮", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                LogUtils.i("我就看看右边按钮点击事件");
+                            }
+                        })
+                        .setNegativeButton("左边按钮", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                LogUtils.i("我就看看左边按钮点击事件");
+
+                            }
+                        }).builder().show(getSupportFragmentManager());
                 BottomDialog dialog = SweetDialogManager.createBuilder(this, BottomDialog.class)
                         .setMessage("我是标题")
                         .setCancelable(false)
-                        .setIsBottomDialog(true)
+                      //  .setIsBottomDialog(true)
                         .builder();
                 dialog.show(getSupportFragmentManager(), "dialog");
                 dialog.setCancelable(false);

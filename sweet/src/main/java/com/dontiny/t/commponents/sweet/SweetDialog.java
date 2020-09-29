@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -40,35 +42,44 @@ public class SweetDialog extends BaseSweetDialog {
         return super.onCreateDialog(savedInstanceState);
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 遮罩层透明度
+        getDialog().getWindow().setDimAmount(dimAmount);
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
     @Override
     protected Dialog createDialog() {
         //用父类装配好的sweetDialogParams参数构建AlertDialog
         SweetDialogParams params = getParams();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), params.themeResId);
-        if (params.mIcon != null) {
-            builder.setIcon(params.mIcon);
-        }
-        if (params.mIconId != 0) {
-            builder.setIcon(params.mIconId);
-        }
-        builder.setTitle(params.mTitle);
-        builder.setPositiveButtonIcon(params.mPositiveButtonIcon);
-        builder.setPositiveButton(params.mPositiveButtonText, mPositiveListener);
-        builder.setNegativeButtonIcon(params.mNegativeButtonIcon);
-        builder.setNegativeButton(params.mNegativeButtonText, mNegativeListener);
-        builder.setNeutralButtonIcon(params.mNeutralButtonIcon);
-        builder.setNeutralButton(params.mNeutralButtonText, mNeutralListener);
-        if (params.mItems != null) {
-            if (params.mIsMultiChoice) {
-                builder.setMultiChoiceItems(params.mItems, params.mCheckedItems, mMultiClickListener);
-            } else if (params.mIsSingleChoice) {
-                builder.setSingleChoiceItems(params.mItems, params.mCheckedItem, mClickListener);
-            } else {
-                builder.setItems(params.mItems, mClickListener);
+        if (!modifyAlertDialogBuilder(builder)) {
+            if (params.mIcon != null) {
+                builder.setIcon(params.mIcon);
+            }
+            if (params.mIconId != 0) {
+                builder.setIcon(params.mIconId);
+            }
+            builder.setTitle(params.mTitle);
+            builder.setPositiveButtonIcon(params.mPositiveButtonIcon);
+            builder.setPositiveButton(params.mPositiveButtonText, mPositiveListener);
+            builder.setNegativeButtonIcon(params.mNegativeButtonIcon);
+            builder.setNegativeButton(params.mNegativeButtonText, mNegativeListener);
+            builder.setNeutralButtonIcon(params.mNeutralButtonIcon);
+            builder.setNeutralButton(params.mNeutralButtonText, mNeutralListener);
+            if (params.mItems != null) {
+                if (params.mIsMultiChoice) {
+                    builder.setMultiChoiceItems(params.mItems, params.mCheckedItems, mMultiClickListener);
+                } else if (params.mIsSingleChoice) {
+                    builder.setSingleChoiceItems(params.mItems, params.mCheckedItem, mClickListener);
+                } else {
+                    builder.setItems(params.mItems, mClickListener);
+                }
             }
         }
         builder.setCancelable(params.mCancelable);
-        modifyAlertDialogBuilder(builder);
         return builder.create();
     }
 
@@ -78,9 +89,15 @@ public class SweetDialog extends BaseSweetDialog {
     }
 
     //子类可继承该方法修改AlertDialog.Builder设置的参数,且必须调用父类方法
-    @CallSuper
-    protected void modifyAlertDialogBuilder(AlertDialog.Builder builder) {
 
+    /**
+     * @param builder
+     * @return 是否是自定义视图
+     */
+    @CallSuper
+    protected boolean modifyAlertDialogBuilder(AlertDialog.Builder builder) {
+
+        return false;
     }
 
     @Override
@@ -103,7 +120,6 @@ public class SweetDialog extends BaseSweetDialog {
             return new SweetDialog();
         }
     }
-
 
 
     /**

@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 
@@ -16,9 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.FragmentManager;
-
-import com.dontiny.t.commponents.sweet.SweetDialog;
-import com.dontiny.t.commponents.sweet.SweetDialogParams;
 
 import java.lang.reflect.Field;
 
@@ -35,11 +34,16 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
     private final static String SWEET_DIALOG_TAG = "SweetDialogTag";
     private final static String SWEET_PARAMS_KEY = "SweetParamsKey";
     private final static String IS_RETAIN_INSTANCE_KEY = "IsRetainInstanceKey";
-    private final static String IS_BOTTOM_DIALOG_KEY = "IsBottomDialog";
+    private final static String IS_BOTTOM_DIALOG_KEY = "IsBottomDialogKey";//是否是底部Dialog
+    private final static String DIM_AMOUNT_KEY = "DimAmountKey";
+    private final static String WIDTH_RATION_KEY = "widthRationKey";
 
     private SweetDialogParams params;
 
     protected boolean isBottomDialog = false;
+    protected float dimAmount = 0.2f;
+    protected float widthRation = -1;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,6 +54,8 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
             params = (SweetDialogParams) bundle.getSerializable(SWEET_PARAMS_KEY);
             setRetainInstance(bundle.getBoolean(IS_RETAIN_INSTANCE_KEY));
             isBottomDialog = bundle.getBoolean(IS_BOTTOM_DIALOG_KEY, false);
+            dimAmount = bundle.getFloat(DIM_AMOUNT_KEY);
+            widthRation = bundle.getFloat(WIDTH_RATION_KEY);
         } else {
             params = new SweetDialogParams();
         }
@@ -63,6 +69,12 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
             onRestoreInstanceState(savedInstanceState);
         }
         return createDialog();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -139,6 +151,10 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
         private boolean isRetainInstance = false;
         //是否创建一个底部显示的Dialog
         private boolean isBottomDialog = false;
+        //遮罩层透明度
+        private float dimAmount = 0;
+        //窗口宽度
+        private float widthRation;
 
         public BaseBuilder(@NonNull Context context) {
             this(context, resolveDialogTheme(context, 0));
@@ -268,7 +284,6 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
             return (T) super.setMultiChoiceItems(cursor, isCheckedColumn, labelColumn, listener);
         }
 
-
         //简单列表
         @Override
         public T setItems(int itemsId, DialogInterface.OnClickListener listener) {
@@ -343,6 +358,29 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
         }
 
         /**
+         * 遮罩层透明度
+         *
+         * @param amount 0-1.0 ,默认0.2f
+         * @return
+         */
+        public T setDimAmount(float amount) {
+            dimAmount = amount;
+            return (T) this;
+        }
+
+        /**
+         * 设置宽度 ，继承BaseCustomSweetDialog自定义Dialog设置才会生效
+         * 高度自适应
+         *
+         * @param widthRation 相对屏幕的宽度比例 0.0-1.0  超出范围即系统默认比例 -1
+         * @return
+         */
+        public T setWidthRation(float widthRation) {
+            this.widthRation = widthRation;
+            return (T) this;
+        }
+
+        /**
          * 通过Fragment的setArguments()方法装配属性参数，并构建SweetDialog
          *
          * @param <U> 默认返回SweetDialog实例，子类需要使用继承自BaseBuilder来builder自身的实例
@@ -355,6 +393,8 @@ public abstract class BaseSweetDialog extends AppCompatDialogFragment {
             bundle.putSerializable(SWEET_PARAMS_KEY, alertParamsToSweetParams(alertParams));
             bundle.putBoolean(IS_RETAIN_INSTANCE_KEY, isRetainInstance);
             bundle.putBoolean(IS_BOTTOM_DIALOG_KEY, isBottomDialog);
+            bundle.putFloat(DIM_AMOUNT_KEY, dimAmount);
+            bundle.putFloat(WIDTH_RATION_KEY, widthRation);
             dialog.setArguments(bundle);
             dialog.mPositiveListener = alertParams.mPositiveButtonListener;
             dialog.mNegativeListener = alertParams.mNegativeButtonListener;
